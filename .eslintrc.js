@@ -14,7 +14,8 @@ module.exports = {
     'space-before-function-paren': 0,
     // 缩进是否检查
     'indent': 0,
-    'no-trailing-spaces': 0
+    'no-trailing-spaces': 0,
+    'eol-last': 0
   },
   parserOptions: {
     parser: 'babel-eslint'

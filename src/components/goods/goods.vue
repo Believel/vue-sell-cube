@@ -6,27 +6,27 @@
                 :data="goods"
                 :options="scrollOptions"
                 v-if="goods.length">
-                <template slot="bar" slot-scope="props">
-                    <!-- <cube-scroll-nav
+               <template slot="bar" slot-scope="props">
+                    <cube-scroll-nav-bar
                         direction="vertical"
                         :labels="props.labels"
                         :txts="barTxts"
                         :current="props.current"
-                        >
+                    >
                         <template slot-scope="props">
-                            <div class="text">
-                                <support-ico 
-                                    v-if="props.txt.type >= 1"
-                                    :size="3"
-                                    :type="props.txt.type">
-                                </support-ico>
-                                <span>{{props.txt.name}}</span>
-                                <span class="num" v-if="props.txt.count">
-                                    {{props.txt.count}}
-                                </span>
-                            </div>
+                        <div class="text">
+                            <support-ico
+                            v-if="props.txt.type>=1"
+                            :size=3
+                            :type="props.txt.type"
+                            ></support-ico>
+                            <span>{{props.txt.name}}</span>
+                            <span class="num" v-if="props.txt.count">
+                            <bubble :num="props.txt.count"></bubble>
+                            </span>
+                        </div>
                         </template>
-                    </cube-scroll-nav> -->
+                    </cube-scroll-nav-bar>
                 </template>
                 <cube-scroll-nav-panel
                     v-for="good in goods"
@@ -51,6 +51,7 @@
                                     <span class="old" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
                                 </div>
                                 <div class="cart-control-wrapper">
+                                    <cart-control :food="food" @add="onAdd"></cart-control>
                                 </div>
                             </div>
                         </li>
@@ -71,6 +72,8 @@
     import { getGoods } from 'model/api'
     import SupportIco from 'components/support-ico/support-icon'
     import ShopCart from 'components/shop-cart/shop-cart'
+    import CartControl from 'components/cart-control/cart-control'
+    import Bubble from 'components/bubble/bubble'
     export default {
         name: 'goods',
         props: {
@@ -98,7 +101,7 @@
                 let ret = []
                 this.goods.forEach((good) => {
                     good.foods.forEach((food) => {
-                        if (good.count) {
+                        if (food.count) {
                             ret.push(food)
                         }
                     })
@@ -123,6 +126,10 @@
             }
         },
         methods: {
+            // 接收点击小球+
+            onAdd(target) {
+                console.log(target)
+            },
             async getGoods() {
                 try {
                     let res = await getGoods()
@@ -139,7 +146,9 @@
         },
         components: {
             SupportIco,
-            ShopCart
+            ShopCart,
+            CartControl,
+            Bubble
         }
     }
 </script>
