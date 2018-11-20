@@ -13,6 +13,7 @@
                         :txts="barTxts"
                         :current="props.current"
                     >
+                    <!-- 如果:txts里面的内容不是默认的，那么就使用插槽自己定义展示的内容 -->
                         <template slot-scope="props">
                         <div class="text">
                             <support-ico
@@ -114,6 +115,7 @@
                     const { type, name, foods } = good
                     let count = 0
                     foods.forEach((food) => {
+                        // food默认是没有count属性的
                         count += food.count || 0
                     })
                     ret.push({
@@ -126,9 +128,9 @@
             }
         },
         methods: {
-            // 接收点击小球+
-            onAdd(target) {
-                console.log(target)
+            // 接收点击小球+,并拿到点击的DOM元素
+            onAdd(el) {
+                this.$refs.shopcat.drop(el)
             },
             async getGoods() {
                 try {

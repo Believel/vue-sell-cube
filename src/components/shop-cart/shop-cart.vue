@@ -24,11 +24,39 @@
                     </div>
                 </div>
             </div>
+            <!-- 需要下落的小球(默认位置是在购物车里面隐藏着多个小球) -->
+            <div class="ball-container">
+                <div v-for="(ball, index) in balls" :key="index">
+                    <transition
+                        @before-enter="beforeDrop"
+                        @enter="dropping"
+                        @after-enter="afterDrop">
+                        <div class="ball" v-show="ball.show">
+                            <div class="inner inner-hook">
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <script>
     import Bubble from 'components/bubble/bubble'
+    const BALL_LEN = 10
+    const innerClsHook = 'inner-hook'
+    /**
+     * 购物车中默认隐藏的小球，注意需要是多个，可能一下子点击多个小球
+     */
+    function createBalls() {
+        let ret = []
+        for (let i = 0; i < BALL_LEN; i++) {
+            ret.push({
+                show: false
+            })
+        }
+        return ret
+    }
     export default {
         name: 'shop-cart',
         props: {
@@ -57,7 +85,7 @@
         },
         data() {
             return {
-                
+                balls: createBalls()
             }
         },
         computed: {
@@ -77,6 +105,7 @@
                 })
                 return count
             },
+            // 支付内容描述
             payDesc() {
                 if (this.totalPrice === 0) {
                     return `￥${this.minPrice}元起送`
@@ -87,6 +116,7 @@
                     return '去结算'
                 }
             },
+            // 跟随支付价格的变化显示不同的样式
             payClass() {
                 if (!this.totalPrice || this.totalPrice < this.minPrice) {
                     return 'not-enough'
@@ -94,6 +124,56 @@
                     return 'enough'
                 }
             }
+        },
+        created() {
+            this.dropBalls = []
+        },
+        methods: {
+            // 记录即将下落的小球元素
+            drop(el) {
+                for (let i = 0; i < this.balls.length; i++) {
+                    const ball = this.balls[i]
+                    if (!ball.show) {
+                        ball.show = true 
+                        ball.el = el 
+                        this.dropBalls.push(ball)
+                        return
+                    }
+                }
+            },
+            // 钩子函数+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            beforeDrop(el) {
+                // 找到最后添加的小球
+                const ball = this.dropBalls[this.dropBalls.length - 1]
+                const rect = ball.el.getBoundingClientRect()
+                // 小球开始的x距离
+                const x = rect.left - 32
+                // 小球开始的y距离
+                const y = - (window.innerHeight - rect.top - 22)
+                el.style.display = ''
+                el.style.transform = el.style.webkitTransform = `translate3d(0, ${y}px, 0)`
+                const inner = el.getElementsByClassName(innerClsHook)[0]
+                inner.style.transform = inner.style.webkitTransform = `translate3d(${x}px, 0, 0)`
+            },
+            dropping(el, done) {
+                // 重绘
+                this._reflow = document.body.offsetHeight
+                // 归位-还是归在原来的位置
+                el.style.transform = el.style.webkitTransform = `translate3d(0, 0, 0)`
+                const inner = el.getElementsByClassName(innerClsHook)[0]
+                inner.style.transform = inner.style.webkitTransform = `translate3d(0, 0, 0)`
+                el.addEventListener('transitionend', done)
+            },
+            afterDrop(el) {
+                // 找到最前添加的小球
+                const ball = this.dropBalls.shift()
+                if (ball) {
+                    // 隐藏小球
+                    ball.show = false
+                    el.style.display = 'none'
+                }
+            }
+            // 钩子函数++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         },
         components: {
             Bubble
