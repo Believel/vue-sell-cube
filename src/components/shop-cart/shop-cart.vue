@@ -2,7 +2,7 @@
     <div>
         <div class="shopcart">
             <div class="content">
-                <div class="content-left">
+                <div class="content-left" @click="togglelist">
                     <div class="logo-wrapper">
                         <div class="logo" :class="{'highlight':totalCount>0}">
                             <i class="icon-shopping_cart" :class="{'highlight':totalCount>0}"></i>
@@ -85,6 +85,7 @@
         },
         data() {
             return {
+                listFold: this.fold,
                 balls: createBalls()
             }
         },
@@ -129,6 +130,20 @@
             this.dropBalls = []
         },
         methods: {
+            togglelist() {
+                if (this.listFold) {
+                    if (!this.totalCount) {
+                        return
+                    }
+                    this.listFold = false
+                    // 显示已购物的列表
+                    this._showShopCartList()
+                    
+                } else {
+                    this.listFold = true
+                    this._hideShopCartList()
+                }
+            },
             // 记录即将下落的小球元素
             drop(el) {
                 for (let i = 0; i < this.balls.length; i++) {
@@ -172,8 +187,37 @@
                     ball.show = false
                     el.style.display = 'none'
                 }
-            }
+            },
             // 钩子函数++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            _showShopCartList() {
+                this.shopCartListComp = this.shopCartListComp || this.$createShopCartList({
+                    $props: {
+                        selectFoods: 'selectFoods'
+                    },
+                    $event: {
+                        leave: () => {
+                            this._hideShopCartSticky()
+                        },
+                        hide: () => {
+                            this.listFold = true
+                        },
+                        add: (el) => {
+
+                        }
+                    }
+                })
+                // 弹框显示
+                this.shopCartListComp.show()
+            },
+            _showShopCartSticky() {
+
+            },
+            _hideShopCartList() {
+
+            },
+            _hideShopCartSticky() {
+
+            }
         },
         components: {
             Bubble
