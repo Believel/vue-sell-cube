@@ -55,6 +55,7 @@
             }
         },
         methods: {
+            // 点击蒙层的时候执行的回调函数
             maskClick() {
                 this.hide()
             },
@@ -62,13 +63,14 @@
                 this.$emit('add', el)
             },
             afterLeave() {
-                this.$emit('leave')
+                // this.$emit('leave')
             },
             show() {
                 this.visible = true
             },
             hide() {
                 this.visible = false
+                this.$emit('hide')
             }
         },
         components: {

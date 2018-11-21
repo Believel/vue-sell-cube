@@ -194,10 +194,9 @@
                     $props: {
                         selectFoods: 'selectFoods'
                     },
-                    $event: {
-                        leave: () => {
-                            this._hideShopCartSticky()
-                        },
+                    // 派发的事件
+                    $events: {
+                        // 接收点击蒙层的子级派发的事件
                         hide: () => {
                             this.listFold = true
                         },
@@ -213,7 +212,7 @@
 
             },
             _hideShopCartList() {
-
+                this.shopCartListComp.hide()
             },
             _hideShopCartSticky() {
 
