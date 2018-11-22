@@ -65,7 +65,8 @@
                 ref="shopcat"
                 :select-foods="selectFoods"
                 :delivery-price="seller.deliveryPrice"
-                :min-price="seller.minPrice"></shop-cart>
+                :min-price="seller.minPrice"
+                ></shop-cart>
         </div>
     </div>
 </template>

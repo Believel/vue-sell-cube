@@ -74,6 +74,7 @@
                 type: Number,
                 default: 0
             },
+            // 这里的sticky的值false代表是shop-cart组件，true代表的是shop-cart-sticky组件
             sticky: {
                 type: Boolean,
                 default: false
@@ -131,6 +132,7 @@
         },
         methods: {
             togglelist() {
+                // console.log(this.listFold)
                 if (this.listFold) {
                     if (!this.totalCount) {
                         return
@@ -138,7 +140,7 @@
                     this.listFold = false
                     // 显示已购物的列表
                     this._showShopCartList()
-                    
+                    this._showShopCartSticky()
                 } else {
                     this.listFold = true
                     this._hideShopCartList()
@@ -164,7 +166,7 @@
                 // 小球开始的x距离
                 const x = rect.left - 32
                 // 小球开始的y距离
-                const y = - (window.innerHeight - rect.top - 22)
+                const y = -(window.innerHeight - rect.top - 22)
                 el.style.display = ''
                 el.style.transform = el.style.webkitTransform = `translate3d(0, ${y}px, 0)`
                 const inner = el.getElementsByClassName(innerClsHook)[0]
@@ -201,7 +203,10 @@
                             this.listFold = true
                         },
                         add: (el) => {
-
+                            this.shopCartStickyComp.drop(el)
+                        },
+                        leave: () => {
+                            this._hideShopCartSticky()
                         }
                     }
                 })
@@ -209,13 +214,33 @@
                 this.shopCartListComp.show()
             },
             _showShopCartSticky() {
-
+                this.shopCartStickyComp = this.shopCartStickyComp || this.$createShopCartSticky({
+                    $props: {
+                        selectFoods: 'selectFoods',
+                        deliveryPrice: 'deliveryPrice',
+                        minPrice: 'minPrice',
+                        fold: 'listFold',
+                        list: this.shopCartListComp
+                    }
+                })
+                this.shopCartStickyComp.show()
             },
             _hideShopCartList() {
-                this.shopCartListComp.hide()
+                const list = this.sticky ? this.$parent.list : this.shopCartListComp
+                list.hide && list.hide()
             },
             _hideShopCartSticky() {
-
+                this.shopCartStickyComp.hide()
+            }
+        },
+        watch: {
+            fold(newVal) {
+                this.listFold = newVal
+            },
+            totalCount(count) {
+                if (!this.fold && count === 0) {
+                    this._hideShopCartList()
+                }
             }
         },
         components: {

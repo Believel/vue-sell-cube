@@ -63,10 +63,11 @@
                 this.$emit('add', el)
             },
             afterLeave() {
-                // this.$emit('leave')
+                this.$emit('leave')
             },
             show() {
                 this.visible = true
+                this.$emit('show')
             },
             hide() {
                 this.visible = false
@@ -130,4 +131,3 @@
           right: 0
           bottom: 6px
 </style>
-
