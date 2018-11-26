@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 const appData = require('./data.json')
 const seller = appData.seller
 const goods = appData.goods
@@ -30,23 +31,23 @@ module.exports = {
     // mock数据
     before(app) {
       app.get('/api/seller', function (req, res) {
-        res.json({
-          errno: 0,
-          data: seller
+          res.json({
+            errno: 0,
+            data: seller
+          })
+        }),
+        app.get('/api/goods', function (req, res) {
+          res.json({
+            errno: 0,
+            data: goods
+          })
+        }),
+        app.get('/api/ratings', function (req, res) {
+          res.json({
+            errno: 0,
+            data: ratings
+          })
         })
-      }),
-      app.get('/api/goods', function(req, res) {
-        res.json({
-          errno: 0,
-          data: goods
-        })
-      }),
-      app.get('/api/ratings', function(req, res) {
-        res.json({
-          errno: 0,
-          data: ratings
-        })
-      })
     }
   },
   chainWebpack(config) {
@@ -54,5 +55,8 @@ module.exports = {
       .set('components', resolve('src/components'))
       .set('common', resolve('src/common'))
       .set('model', resolve('src/model'))
+    config.plugin('context')
+      .use(webpack.ContextReplacementPlugin,
+        [/moment[\/\\]locale$/, /zh-cn/])
   }
 }

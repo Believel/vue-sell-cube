@@ -1,8 +1,8 @@
 <template>
     <div>
         <div class="shopcart">
-            <div class="content">
-                <div class="content-left" @click="togglelist">
+            <div class="content" @click="togglelist">
+                <div class="content-left">
                     <div class="logo-wrapper">
                         <div class="logo" :class="{'highlight':totalCount>0}">
                             <i class="icon-shopping_cart" :class="{'highlight':totalCount>0}"></i>
@@ -18,7 +18,7 @@
                         另需配送费￥{{deliveryPrice}}
                     </div>
                 </div>
-                <div class="content-right">
+                <div class="content-right" @click="toPay">
                     <div class="pay" :class="payClass">
                         {{payDesc}}
                     </div>
@@ -27,10 +27,7 @@
             <!-- 需要下落的小球(默认位置是在购物车里面隐藏着多个小球) -->
             <div class="ball-container">
                 <div v-for="(ball, index) in balls" :key="index">
-                    <transition
-                        @before-enter="beforeDrop"
-                        @enter="dropping"
-                        @after-enter="afterDrop">
+                    <transition @before-enter="beforeDrop" @enter="dropping" @after-enter="afterDrop">
                         <div class="ball" v-show="ball.show">
                             <div class="inner inner-hook">
                             </div>
@@ -129,10 +126,26 @@
         },
         created() {
             this.dropBalls = []
+            this.count = 0
         },
         methods: {
+            // 去结算
+            toPay(e) {
+                if (this.totalPrice < this.minPrice) {
+                    return 
+                }
+                // 注意：如果使用单例模式的话，this.totalPrice就得使用$props传入进入，否则的话就不会更新
+                this.dialogComp = this.$createDialog({
+                    title: '支付',
+                    content: `你需要支付${this.totalPrice}元`
+                })
+                e.stopPropagation()
+                this.dialogComp.show()
+            },
+            // 展开或者收起购物车列表(注：暂时还有bug)
             togglelist() {
-                // console.log(this.listFold)
+                // alert(this.listFold)
+                // 默认是收起的true
                 if (this.listFold) {
                     if (!this.totalCount) {
                         return
@@ -249,90 +262,127 @@
     }
 </script>
 <style lang="stylus" scoped>
- @import "~common/stylus/mixin"
- @import "~common/stylus/variable"
- .shopcart
-    height: 100%
-    .content
-      display: flex
-      background: $color-background
-      font-size: 0
-      color: $color-light-grey
-      .content-left
-        flex: 1
-        .logo-wrapper
-          display: inline-block
-          vertical-align: top
-          position: relative
-          top: -10px
-          margin: 0 12px
-          padding: 6px
-          width: 56px
-          height: 56px
-          box-sizing: border-box
-          border-radius: 50%
-          background: $color-background
-          .logo
-            width: 100%
-            height: 100%
-            border-radius: 50%
-            text-align: center
-            background: $color-dark-grey
-            &.highlight
-              background: $color-blue
-            .icon-shopping_cart
-              line-height: 44px
-              font-size: $fontsize-large-xxx
-              color: $color-light-grey
-              &.highlight
-                color: $color-white
-          .num
-            position: absolute
-            top: 0
-            right: 0
-        .price
-          display: inline-block
-          vertical-align: top
-          margin-top: 12px
-          line-height: 24px
-          padding-right: 12px
-          box-sizing: border-box
-          border-right: 1px solid rgba(255, 255, 255, 0.1)
-          font-weight: 700
-          font-size: $fontsize-large
-          &.highlight
-            color: $color-white
-        .desc
-          display: inline-block
-          vertical-align: top
-          margin: 12px 0 0 12px
-          line-height: 24px
-          font-size: $fontsize-small-s
-      .content-right
-        flex: 0 0 105px
-        width: 105px
-        .pay
-          height: 48px
-          line-height: 48px
-          text-align: center
-          font-weight: 700
-          font-size: $fontsize-small
-          &.not-enough
-            background: $color-dark-grey
-          &.enough
-            background: $color-green
-            color: $color-white
-    .ball-container
-      .ball
-        position: fixed
-        left: 32px
-        bottom: 22px
-        z-index: 200
-        transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41)
-        .inner
-          width: 16px
-          height: 16px
-          border-radius: 50%
-          background: $color-blue
-          transition: all 0.4s linear
+@import '~common/stylus/mixin';
+@import '~common/stylus/variable';
+
+.shopcart {
+    height: 100%;
+
+    .content {
+        display: flex;
+        background: $color-background;
+        font-size: 0;
+        color: $color-light-grey;
+
+        .content-left {
+            flex: 1;
+
+            .logo-wrapper {
+                display: inline-block;
+                vertical-align: top;
+                position: relative;
+                top: -10px;
+                margin: 0 12px;
+                padding: 6px;
+                width: 56px;
+                height: 56px;
+                box-sizing: border-box;
+                border-radius: 50%;
+                background: $color-background;
+
+                .logo {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    text-align: center;
+                    background: $color-dark-grey;
+
+                    &.highlight {
+                        background: $color-blue;
+                    }
+
+                    .icon-shopping_cart {
+                        line-height: 44px;
+                        font-size: $fontsize-large-xxx;
+                        color: $color-light-grey;
+
+                        &.highlight {
+                            color: $color-white;
+                        }
+                    }
+                }
+
+                .num {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                }
+            }
+
+            .price {
+                display: inline-block;
+                vertical-align: top;
+                margin-top: 12px;
+                line-height: 24px;
+                padding-right: 12px;
+                box-sizing: border-box;
+                border-right: 1px solid rgba(255, 255, 255, 0.1);
+                font-weight: 700;
+                font-size: $fontsize-large;
+
+                &.highlight {
+                    color: $color-white;
+                }
+            }
+
+            .desc {
+                display: inline-block;
+                vertical-align: top;
+                margin: 12px 0 0 12px;
+                line-height: 24px;
+                font-size: $fontsize-small-s;
+            }
+        }
+
+        .content-right {
+            flex: 0 0 105px;
+            width: 105px;
+
+            .pay {
+                height: 48px;
+                line-height: 48px;
+                text-align: center;
+                font-weight: 700;
+                font-size: $fontsize-small;
+
+                &.not-enough {
+                    background: $color-dark-grey;
+                }
+
+                &.enough {
+                    background: $color-green;
+                    color: $color-white;
+                }
+            }
+        }
+    }
+
+    .ball-container {
+        .ball {
+            position: fixed;
+            left: 32px;
+            bottom: 22px;
+            z-index: 200;
+            transition: all 0.4s cubic-bezier(0.49, -0.29, 0.75, 0.41);
+
+            .inner {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: $color-blue;
+                transition: all 0.4s linear;
+            }
+        }
+    }
+}
 </style>
