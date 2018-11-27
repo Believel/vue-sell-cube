@@ -60,7 +60,9 @@
                 // slide内容滑动设置对应的tab头部内容改变
                 this.index = current
                 const component = this.$refs.component[current]
-                component.getGoods()
+                if (component && component.getGoods) {
+                    component.getGoods()
+                }
             },
             // 实时派发滚动的距离,如果使用了就把默认的useTransition属性设置为false,要不然会有冲突
             scroll(pos) {

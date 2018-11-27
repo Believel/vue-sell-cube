@@ -122,7 +122,9 @@
                     // 防止在点击tab切换的时候返回重新请求数据(只请求一次就行)
                     if (!this.fetched) {
                         this.fetched = true
-                        let res = await getGoods()
+                        let res = await getGoods({
+                            id: this.seller.id
+                        })
                         if (res.errno === 0) {
                             this.goods = res.data
                         }
